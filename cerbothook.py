@@ -1,4 +1,4 @@
-#! python
+#! /usr/bin/python3
 import json
 import os
 from pathlib import Path
@@ -37,24 +37,15 @@ class Hook(object):
         response = json.loads(
             self.client.do_action_with_exception(request).decode())
 
-        recordID = None
         for record in response['DomainRecords']['Record']:
-            if record['Type'] == 'TXT' and record['RR'] == RR:
-                if record['Value'] == value:
-                    print('value already exists.')
-                    return
-                else:
-                    recordID = record['RecordId']
-                    break
+            if record['Type'] == 'TXT' and record['RR'] == RR and record['Value'] == value:
+                print('value already exists.')
+                return
 
-        if recordID:
-            print('Record already exists, update the record.')
-            request = UpdateDomainRecordRequest.UpdateDomainRecordRequest()
-            request.set_RecordId(recordID)
-        else:
-            print('Create a new record.')
-            request = AddDomainRecordRequest.AddDomainRecordRequest()
-            request.set_DomainName(self.getBaseDomain(domain))
+        print('Create a new record.')
+        request = AddDomainRecordRequest.AddDomainRecordRequest()
+        request.set_DomainName(self.getBaseDomain(domain))
+
         request.set_Type('TXT')
         request.set_RR(RR)
         request.set_Value(value)
